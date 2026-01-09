@@ -1,0 +1,14 @@
+﻿{
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "NotificationsAPI": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development",
+        "QUEUE_USER_CREATED": "Shared.Contracts.Events:UserCreatedIntegrationEvent",
+        "QUEUE_PAYMENT_PROCESSED": "Shared.Contracts.Events:PaymentProcessedEvent"
+      }
+    }
+  }
+}

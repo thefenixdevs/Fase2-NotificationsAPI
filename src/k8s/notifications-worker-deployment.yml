@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notifications-worker
+  namespace: gamestore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notifications-worker
+  template:
+    metadata:
+      labels:
+        app: notifications-worker
+    spec:
+      containers:
+        - name: notifications-worker
+          image: notifications-worker:1
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: notifications-config
+            - secretRef:
+                name: notifications-secret
