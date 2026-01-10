@@ -18,6 +18,9 @@ public class SendWelcomeEmailUseCase
 
     public async Task ExecuteAsync(string email)
     {
+        if (!_domainService.IsValidEmail(email))
+            return;
+
         var notification = _domainService.CreateWelcomeNotification(email);
 
         await _emailSender.SendAsync(

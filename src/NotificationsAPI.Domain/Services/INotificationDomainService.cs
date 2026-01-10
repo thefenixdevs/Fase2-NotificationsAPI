@@ -6,4 +6,6 @@ public interface INotificationDomainService
 {
     Notification CreateWelcomeNotification(string email);
     Notification? CreatePurchaseNotification(string email, string paymentStatus);
+
+    bool IsValidEmail(string email);
 }

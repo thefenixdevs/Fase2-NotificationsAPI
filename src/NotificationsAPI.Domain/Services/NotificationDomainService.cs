@@ -1,4 +1,5 @@
 ﻿using NotificationsAPI.Domain.Entities;
+using System.Text.RegularExpressions;
 
 namespace NotificationsAPI.Domain.Services;
 
@@ -13,5 +14,14 @@ public class NotificationDomainService : INotificationDomainService
             return null;
 
         return new Notification("PURCHASE_CONFIRMED", email);
+    }
+
+    public bool IsValidEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return false;
+
+        var pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+        return Regex.IsMatch(email, pattern, RegexOptions.IgnoreCase);
     }
 }
