@@ -55,13 +55,29 @@ builder.Services.AddMassTransit(x =>
                     Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest");
             });
 
-        cfg.ReceiveEndpoint(queueSettings.UserCreatedQueue, e =>
+        // Bind to existing exchange created by UsersAPI (producer)
+        // Do not specify ExchangeType to avoid trying to create it
+        cfg.ReceiveEndpoint("fcg.notifications.user-created", e =>
         {
+            e.ConfigureConsumeTopology = false;
+            e.Bind("fcg.user-created-event", s =>
+            {
+                // Bind to existing exchange with routing key
+                s.RoutingKey = "notifications.user-created";
+            });
             e.ConfigureConsumer<UserCreatedIntegrationEventConsumer>(context);
         });
 
-        cfg.ReceiveEndpoint(queueSettings.PaymentProcessedQueue, e =>
+        // Bind to existing exchange/queue created by PaymentsAPI (producer)
+        // Do not specify ExchangeType to avoid trying to create it
+        cfg.ReceiveEndpoint("fcg.notifications.payment-processed", e =>
         {
+            e.ConfigureConsumeTopology = false;
+            e.Bind("fcg.payment-processed-event", s =>
+            {
+                // Bind to existing exchange with routing key
+                s.RoutingKey = "notifications.payment-processed";
+            });
             e.ConfigureConsumer<PaymentProcessedConsumer>(context);
         });
     });
