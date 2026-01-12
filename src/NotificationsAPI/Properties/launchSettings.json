@@ -6,8 +6,8 @@
       "dotnetRunMessages": true,
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
-        "QUEUE_USER_CREATED": "Shared.Contracts.Events:UserCreatedIntegrationEvent",
-        "QUEUE_PAYMENT_PROCESSED": "Shared.Contracts.Events:PaymentProcessedEvent"
+        "QUEUE_USER_CREATED": "user-created-event",
+        "QUEUE_PAYMENT_PROCESSED": "payment-processed-event"
       }
     }
   }

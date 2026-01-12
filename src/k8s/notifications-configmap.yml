@@ -6,5 +6,5 @@ metadata:
 data:
   RABBITMQ_HOST: rabbitmq
   RABBITMQ_USERNAME: guest
-  QUEUE_USER_CREATED: Shared.Contracts.Events:UserCreatedIntegrationEvent
-  QUEUE_PAYMENT_PROCESSED: Shared.Contracts.Events:PaymentProcessedEvent
+  QUEUE_USER_CREATED: user-created-event
+  QUEUE_PAYMENT_PROCESSED: payment-processed-event

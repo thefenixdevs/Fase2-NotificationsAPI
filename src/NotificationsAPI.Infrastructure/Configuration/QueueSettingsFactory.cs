@@ -8,11 +8,11 @@ public static class QueueSettingsFactory
         {
             UserCreatedQueue =
                 Environment.GetEnvironmentVariable("QUEUE_USER_CREATED")
-                ?? "user-created-queue",
+                ?? "fcg.notifications.user-created",
 
             PaymentProcessedQueue =
                 Environment.GetEnvironmentVariable("QUEUE_PAYMENT_PROCESSED")
-                ?? "payment-processed-queue"
+                ?? "fcg.notifications.payment-processed"
         };
     }
 }
