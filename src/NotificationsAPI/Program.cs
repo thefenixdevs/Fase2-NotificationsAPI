@@ -68,16 +68,18 @@ builder.Services.AddMassTransit(x =>
             e.ConfigureConsumer<UserCreatedIntegrationEventConsumer>(context);
         });
 
+        // Configure explicit entity name for PaymentProcessedEvent
+        cfg.Message<Shared.Contracts.Events.PaymentProcessedEvent>(m =>
+        {
+            m.SetEntityName("fcg.payment-processed-event");
+        });
+
         // Bind to existing exchange/queue created by PaymentsAPI (producer)
-        // Do not specify ExchangeType to avoid trying to create it
+        // Removendo routing key para evitar mensagens em _skipped
         cfg.ReceiveEndpoint("fcg.notifications.payment-processed", e =>
         {
             e.ConfigureConsumeTopology = false;
-            e.Bind("fcg.payment-processed-event", s =>
-            {
-                // Bind to existing exchange with routing key
-                s.RoutingKey = "notifications.payment-processed";
-            });
+            e.Bind("fcg.payment-processed-event");
             e.ConfigureConsumer<PaymentProcessedConsumer>(context);
         });
     });
