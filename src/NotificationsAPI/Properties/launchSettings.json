@@ -7,7 +7,7 @@
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development",
         "QUEUE_USER_CREATED": "Shared.Contracts.Events:UserCreatedIntegrationEvent",
-        "QUEUE_PAYMENT_PROCESSED": "Shared.Contracts.Events:PaymentProcessedEvent"
+        "QUEUE_PAYMENT_PROCESSED": "Shared.Contracts.Events:PaymentProcessedEvent-Notification"
       }
     }
   }
