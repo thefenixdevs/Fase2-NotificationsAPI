@@ -7,6 +7,7 @@ using NotificationsAPI.Infrastructure.Configuration;
 using NotificationsAPI.Infrastructure.Email;
 using NotificationsAPI.Infrastructure.Messaging.Consumers;
 using Serilog;
+using Shared.Contracts.Events;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -55,9 +56,10 @@ builder.Services.AddMassTransit(x =>
                     Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest");
             });
 
-        cfg.ReceiveEndpoint(queueSettings.UserCreatedQueue, e =>
+        cfg.ReceiveEndpoint(queueSettings.PaymentProcessedQueue, e =>
         {
-            e.ConfigureConsumer<UserCreatedIntegrationEventConsumer>(context);
+            e.ConfigureConsumer<PaymentProcessedConsumer>(context);
+            e.Bind<PaymentProcessedEvent>();
         });
 
         cfg.ReceiveEndpoint(queueSettings.PaymentProcessedQueue, e =>
