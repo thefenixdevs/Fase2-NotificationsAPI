@@ -10,7 +10,7 @@ public class NotificationDomainService : INotificationDomainService
 
     public Notification? CreatePurchaseNotification(string email, string paymentStatus)
     {
-        if (paymentStatus != "Approved")
+        if (paymentStatus != "Aprovado")
             return null;
 
         return new Notification("PURCHASE_CONFIRMED", email);
