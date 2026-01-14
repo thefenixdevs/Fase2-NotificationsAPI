@@ -56,15 +56,15 @@ builder.Services.AddMassTransit(x =>
                     Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest");
             });
 
-        cfg.ReceiveEndpoint(queueSettings.PaymentProcessedQueue, e =>
+        cfg.ReceiveEndpoint(queueSettings.UserCreatedQueue, e =>
         {
-            e.ConfigureConsumer<PaymentProcessedConsumer>(context);
-            e.Bind<PaymentProcessedEvent>();
+            e.ConfigureConsumer<UserCreatedIntegrationEventConsumer>(context);
         });
 
         cfg.ReceiveEndpoint(queueSettings.PaymentProcessedQueue, e =>
         {
             e.ConfigureConsumer<PaymentProcessedConsumer>(context);
+            e.Bind<PaymentProcessedEvent>();
         });
     });
 });
