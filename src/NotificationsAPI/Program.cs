@@ -1,14 +1,15 @@
-﻿using MassTransit;
+using AspNetCore.HealthChecks.UI.Client;
+using MassTransit;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using NotificationsAPI;
 using NotificationsAPI.Application.Ports;
 using NotificationsAPI.Application.UseCases;
 using NotificationsAPI.Domain.Services;
-using NotificationsAPI.Infrastructure.Configuration;
 using NotificationsAPI.Infrastructure.Email;
 using NotificationsAPI.Infrastructure.Messaging.Consumers;
 using Serilog;
 
-var builder = Host.CreateApplicationBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
 
@@ -27,15 +28,24 @@ builder.Services.AddSerilog((services, loggerConfig) =>
 });
 
 builder.Services.AddHostedService<Worker>();
+builder.Services.AddHealthChecks()
+    .AddRabbitMQ(_ =>
+    {
+        var factory = new RabbitMQ.Client.ConnectionFactory
+        {
+            HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost",
+            UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? string.Empty,
+            Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? string.Empty,
+            VirtualHost = "/"
+        };
+
+        return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+    }, name: "rabbitmq");
 
 builder.Services.AddScoped<INotificationDomainService, NotificationDomainService>();
-
 builder.Services.AddScoped<SendWelcomeEmailUseCase>();
 builder.Services.AddScoped<SendPurchaseConfirmationUseCase>();
-
 builder.Services.AddScoped<IEmailSender, ConsoleEmailSender>();
-
-var queueSettings = QueueSettingsFactory.FromEnvironment();
 
 builder.Services.AddMassTransit(x =>
 {
@@ -49,33 +59,25 @@ builder.Services.AddMassTransit(x =>
             "/",
             h =>
             {
-                h.Username(
-                    Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest");
-                h.Password(
-                    Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest");
+                h.Username(Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? string.Empty);
+                h.Password(Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? string.Empty);
             });
 
-        // Bind to existing exchange created by UsersAPI (producer)
-        // Do not specify ExchangeType to avoid trying to create it
         cfg.ReceiveEndpoint("fcg.notifications.user-created", e =>
         {
             e.ConfigureConsumeTopology = false;
             e.Bind("fcg.user-created-event", s =>
             {
-                // Bind to existing exchange with routing key
                 s.RoutingKey = "notifications.user-created";
             });
             e.ConfigureConsumer<UserCreatedIntegrationEventConsumer>(context);
         });
 
-        // Configure explicit entity name for PaymentProcessedEvent
         cfg.Message<Shared.Contracts.Events.PaymentProcessedEvent>(m =>
         {
             m.SetEntityName("fcg.payment-processed-event");
         });
 
-        // Bind to existing exchange/queue created by PaymentsAPI (producer)
-        // Removendo routing key para evitar mensagens em _skipped
         cfg.ReceiveEndpoint("fcg.notifications.payment-processed", e =>
         {
             e.ConfigureConsumeTopology = false;
@@ -85,5 +87,13 @@ builder.Services.AddMassTransit(x =>
     });
 });
 
-var host = builder.Build();
-host.Run();
+var app = builder.Build();
+
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.MapGet("/", () => Results.Ok(new { service = "notifications-api", status = "running" }));
+
+app.Run();
