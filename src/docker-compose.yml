@@ -19,8 +19,8 @@ services:
 
   notifications-worker:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: src/Dockerfile
     depends_on:
       rabbitmq:
         condition: service_healthy
